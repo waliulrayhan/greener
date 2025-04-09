@@ -1,0 +1,29 @@
+name: Green Commit Automation
+
+on:
+  schedule:
+    - cron: '13 9 * * *'  # Runs daily at 9:13 AM UTC
+  workflow_dispatch:      # Allows manual trigger from GitHub UI
+
+jobs:
+  green-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Make random commits
+      run: |
+        python green_commit.py
+
+    - name: Push changes
+      run: |
+        git config user.name "waliulrayhan"
+        git config user.email "b190305034@cse.jnu.ac.bd"
+        git push
