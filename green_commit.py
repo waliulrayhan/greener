@@ -2,13 +2,23 @@ import random
 import datetime
 import os
 import subprocess
+import time
 
-# Random number of commits: 0 to 3
-commit_count = random.randint(0, 3)
-
-if commit_count == 0:
-    print("No commit today 😴")
+# Simulate a lazy day
+if random.random() < 0.25:
+    print("🛌 Taking the day off. No commits today.")
     exit(0)
+
+# Decide number of commits
+commit_weights = (
+    [1]*5 +         # Light day (1 commit)
+    [2]*4 +         # Medium day (2 commits)
+    [3]*3 +         # Heavier (3 commits)
+    [4]*2 +         # Even heavier (4)
+    [5]*1 + [6]*1   # Ultra workaholic days
+)
+commit_count = random.choice(commit_weights)
+print(f"👨‍💻 Workday: making {commit_count} commits.")
 
 for i in range(commit_count):
     now = datetime.datetime.now()
@@ -18,4 +28,10 @@ for i in range(commit_count):
         f.write(f"{now}: Random commit #{i+1}\n")
 
     subprocess.run(["git", "add", filename])
-    subprocess.run(["git", "commit", "-m", f"Auto commit #{i+1} on {now}"])
+    subprocess.run(["git", "commit", "-m", f"Commit #{i+1} on {now.strftime('%Y-%m-%d %H:%M:%S')}"])
+
+    # Add human-like delay between commits (30s to 3m)
+    if i < commit_count - 1:
+        delay = random.randint(30, 180)
+        print(f"⏱️ Sleeping {delay}s before next commit...")
+        time.sleep(delay)
