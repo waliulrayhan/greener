@@ -7,6 +7,10 @@ on:
     - cron: '25 20 * * *'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   green-commits:
     runs-on: ubuntu-latest
@@ -16,6 +20,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         persist-credentials: false
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -39,11 +44,18 @@ jobs:
         git config --global user.name "waliulrayhan"
         git config --global user.email "b190305034@cse.jnu.ac.bd"
         git remote set-url origin https://waliulrayhan:${PAT_TOKEN}@github.com/waliulrayhan/greener.git
+        
+        # Fetch and rebase before pushing
+        git fetch origin main
+        git rebase origin/main
+        
         git add activity.log
         git status
+        
         if git diff --staged --quiet; then
           echo "No changes to commit"
+          exit 0
         else
           git commit -m "Automated commit: $(date)"
-          git push
+          git push origin HEAD:main
         fi
