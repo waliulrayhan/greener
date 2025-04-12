@@ -2,10 +2,19 @@ name: Green Commit Automation
 
 on:
   schedule:
-    - cron: '7 9 * * *'
-    - cron: '42 13 * * *'
-    - cron: '25 20 * * *'
+    # Early morning (5-9 AM) - random minutes
+    - cron: '12 5-9 * * 1-5'
+    # Lunch time (12-2 PM) - random minutes
+    - cron: '42 12-14 * * 1-5'
+    # Evening (6-9 PM) - random minutes
+    - cron: '27 18-21 * * 1-5'
+    # Weekend random times
+    - cron: '15 10-16 * * 0,6'
   workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,6 +30,7 @@ jobs:
       with:
         persist-credentials: false
         fetch-depth: 0
+        token: ${{ secrets.GH_TOKEN }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -29,7 +39,6 @@ jobs:
 
     - name: Debug Info
       run: |
-        echo "GitHub Actor: ${{ github.actor }}"
         echo "Repository: ${{ github.repository }}"
         git config --list
 
@@ -39,11 +48,12 @@ jobs:
 
     - name: Configure Git and Push
       env:
-        PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         git config --global user.name "waliulrayhan"
         git config --global user.email "b190305034@cse.jnu.ac.bd"
-        git remote set-url origin https://waliulrayhan:${PAT_TOKEN}@github.com/waliulrayhan/greener.git
+        
+        git remote set-url origin https://oauth2:${GH_TOKEN}@github.com/waliulrayhan/greener.git
         
         # Fetch and rebase before pushing
         git fetch origin main
@@ -57,5 +67,9 @@ jobs:
           exit 0
         else
           git commit -m "Automated commit: $(date)"
-          git push origin HEAD:main
+          git push origin HEAD:main || {
+            # If push fails, try pulling and pushing again
+            git pull --rebase origin main
+            git push origin HEAD:main
+          }
         fi
