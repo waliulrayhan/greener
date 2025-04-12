@@ -6,21 +6,26 @@ from datetime import timedelta
 
 def get_commit_message():
     messages = [
-        "Update documentation and improve readability",
-        "Fix typo in code comments",
-        "Add new feature: automated logging",
+        "Late night code optimization",
+        "Fix critical bug before release",
+        "Implement new feature while everyone's asleep",
         "Refactor code for better performance",
-        "Improve system performance",
-        "Update project dependencies",
-        "Fix bug in main workflow",
-        "Clean up codebase",
-        "Add unit tests",
-        "Minor code improvements",
-        "Update configuration files",
-        "Optimize database queries",
-        "Enhance user interface",
-        "Implement security fixes",
-        "Add error handling"
+        "Late night debugging session",
+        "Update project documentation",
+        "Fix that annoying bug that kept me up",
+        "Clean up codebase at midnight",
+        "Add unit tests for night build",
+        "Midnight code improvements",
+        "Update configuration for production",
+        "Optimize database performance",
+        "Enhance UI for dark mode",
+        "Late night security patches",
+        "Add error handling for edge cases",
+        "3 AM code cleanup",
+        "Night owl session: code improvements",
+        "Quiet hours: major refactoring",
+        "Peaceful night coding",
+        "Late night inspiration struck"
     ]
     return random.choice(messages)
 
@@ -35,34 +40,36 @@ def write_to_log(message, timestamp):
 try:
     now = datetime.datetime.now()
     
-    # No commits on weekends (70% chance)
-    if now.weekday() >= 5 and random.random() < 0.7:
-        print("🏖️ Weekend break! No commits today.")
+    # More likely to code on weekends at night
+    if now.weekday() >= 5 and random.random() < 0.3:  # Only 30% chance to skip weekend nights
+        print("🏖️ Taking a weekend break!")
         sys.exit(0)
     
-    # Simulate a lazy day (15% chance on weekdays, 40% chance on weekends)
-    lazy_chance = 0.4 if now.weekday() >= 5 else 0.15
+    # Less likely to skip night coding sessions
+    lazy_chance = 0.2 if now.weekday() >= 5 else 0.1  # Night owls rarely skip
     if random.random() < lazy_chance:
-        print("🛌 Taking the day off. No commits today.")
+        print("🛌 Even night owls need rest sometimes.")
         sys.exit(0)
 
-    # Decide number of commits based on day of week
-    if now.weekday() < 5:  # Weekday
+    # Night owls tend to do more in one session
+    if now.weekday() < 5:  # Weekday nights
         commit_weights = (
-            [1]*5 +         # Light day (1 commit)
-            [2]*4 +         # Medium day (2 commits)
-            [3]*3 +         # Heavier (3 commits)
-            [4]*2 +         # Even heavier (4)
-            [5]*1           # Super productive day
+            [2]*4 +         # Light night (2 commits)
+            [3]*5 +         # Medium night (3 commits)
+            [4]*4 +         # Productive night (4 commits)
+            [5]*3 +         # Very productive (5)
+            [6]*1           # Epic coding night
         )
-    else:  # Weekend
+    else:  # Weekend nights
         commit_weights = (
-            [1]*7 +         # Most likely 1 commit
-            [2]*3           # Occasionally 2 commits
+            [3]*4 +         # Light weekend night (3 commits)
+            [4]*5 +         # Medium weekend night (4 commits)
+            [5]*4 +         # Heavy weekend night (5 commits)
+            [6]*2           # Marathon coding session
         )
     
     commit_count = random.choice(commit_weights)
-    print(f"👨‍💻 Workday: making {commit_count} commits.")
+    print(f"🦉 Night coding session: planning {commit_count} commits.")
 
     # Create activity.log if it doesn't exist
     if not os.path.exists("activity.log"):
@@ -70,12 +77,13 @@ try:
         print("Created new activity.log file")
 
     for i in range(commit_count):
-        commit_time = now + timedelta(minutes=i*random.randint(5, 30))
+        # More realistic night-time commit spacing
+        commit_time = now + timedelta(minutes=i*random.randint(15, 45))
         commit_message = get_commit_message()
         
         # Write to activity log
         write_to_log(commit_message, commit_time)
-        print(f"Logged commit: {commit_message}")
+        print(f"🌙 Logged commit: {commit_message}")
 
 except Exception as e:
     print(f"Unexpected error in main execution: {str(e)}")

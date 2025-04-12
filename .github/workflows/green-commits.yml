@@ -2,19 +2,19 @@ name: Green Commit Automation
 
 on:
   schedule:
-    # Early morning (5-9 AM) - random minutes
-    - cron: '12 5-9 * * 1-5'
-    # Lunch time (12-2 PM) - random minutes
-    - cron: '42 12-14 * * 1-5'
-    # Evening (6-9 PM) - random minutes
-    - cron: '27 18-21 * * 1-5'
-    # Weekend random times
-    - cron: '15 10-16 * * 0,6'
+    # Evening coding session (8-10 PM Bangladesh) = 2-4 PM UTC
+    - cron: '35 14,15,16 * * 1-5'
+    # Late night coding (11 PM - 1 AM Bangladesh) = 5-7 PM UTC
+    - cron: '15 17,18,19 * * 1-5'
+    # Weekend late nights (10 PM - 2 AM Bangladesh) = 4-8 PM UTC
+    - cron: '42 16,17,18,19,20 * * 0,6'
   workflow_dispatch:
 
 jobs:
   green-commits:
     runs-on: ubuntu-latest
+    env:
+      TZ: 'Asia/Dhaka'  # Set timezone to Bangladesh
 
     steps:
     - name: Checkout repo
