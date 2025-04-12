@@ -1,25 +1,8 @@
 import random
 import datetime
 import os
-import subprocess
-import time
 import sys
 from datetime import timedelta
-
-def run_command(command):
-    try:
-        print(f"Executing command: {' '.join(command)}")
-        result = subprocess.run(command, check=True, capture_output=True, text=True)
-        print(f"Command output: {result.stdout}")
-        return result.stdout
-    except subprocess.CalledProcessError as e:
-        print(f"Error executing command: {' '.join(command)}")
-        print(f"Error output: {e.stderr}")
-        print(f"Return code: {e.returncode}")
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {str(e)}")
-        sys.exit(1)
 
 def get_commit_message():
     messages = [
@@ -44,7 +27,7 @@ def get_commit_message():
 def write_to_log(message, timestamp):
     try:
         with open("activity.log", "a") as f:
-            f.write(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
+            f.write(f"{message} - {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n")
     except IOError as e:
         print(f"Error writing to activity.log: {str(e)}")
         sys.exit(1)
@@ -93,16 +76,6 @@ try:
         # Write to activity log
         write_to_log(commit_message, commit_time)
         print(f"Logged commit: {commit_message}")
-
-        # Git operations
-        run_command(["git", "add", "activity.log"])
-        run_command(["git", "commit", "-m", f"{commit_message} - {commit_time.strftime('%Y-%m-%d %H:%M:%S')}"])
-
-        if i < commit_count - 1:
-            # More realistic delays between commits (2-15 minutes)
-            delay = random.randint(120, 900)
-            print(f"⏱️ Sleeping {delay}s before next commit...")
-            time.sleep(delay)
 
 except Exception as e:
     print(f"Unexpected error in main execution: {str(e)}")

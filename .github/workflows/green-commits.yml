@@ -56,15 +56,14 @@ jobs:
         # Pull latest changes
         git pull origin main --rebase
         
-        # Add and commit changes
-        git add activity.log
-        git status
-        
-        if git diff --staged --quiet; then
+        # Check if activity.log has changes
+        if git diff --quiet activity.log; then
           echo "No changes to commit"
           exit 0
         else
-          git commit -m "Automated commit: $(date)"
-          # Force push with lease for safety
-          git push --force-with-lease origin main
+          # Get the last line from activity.log for commit message
+          LAST_LOG=$(tail -n 1 activity.log)
+          git add activity.log
+          git commit -m "$LAST_LOG"
+          git push origin HEAD:main
         fi
