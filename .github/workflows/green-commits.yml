@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -24,8 +26,15 @@ jobs:
       run: |
         python green_commit.py
 
+    - name: Configure Git
+      run: |
+        git config --global user.name "waliulrayhan"
+        git config --global user.email "b190305034@cse.jnu.ac.bd"
+
     - name: Push changes
       run: |
-        git config user.name "waliulrayhan"
-        git config user.email "b190305034@cse.jnu.ac.bd"
+        git add .
+        git commit -m "Automated commit: $(date)"
         git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
