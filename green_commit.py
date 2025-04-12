@@ -23,18 +23,31 @@ def run_command(command):
 
 def get_commit_message():
     messages = [
-        "Update documentation",
-        "Fix typo",
-        "Add new feature",
-        "Refactor code",
-        "Improve performance",
-        "Update dependencies",
-        "Fix bug",
-        "Clean up code",
-        "Add tests",
-        "Minor changes"
+        "Update documentation and improve readability",
+        "Fix typo in code comments",
+        "Add new feature: automated logging",
+        "Refactor code for better performance",
+        "Improve system performance",
+        "Update project dependencies",
+        "Fix bug in main workflow",
+        "Clean up codebase",
+        "Add unit tests",
+        "Minor code improvements",
+        "Update configuration files",
+        "Optimize database queries",
+        "Enhance user interface",
+        "Implement security fixes",
+        "Add error handling"
     ]
     return random.choice(messages)
+
+def write_to_log(message, timestamp):
+    try:
+        with open("activity.log", "a") as f:
+            f.write(f"[{timestamp.strftime('%Y-%m-%d %H:%M:%S')}] {message}\n")
+    except IOError as e:
+        print(f"Error writing to activity.log: {str(e)}")
+        sys.exit(1)
 
 try:
     now = datetime.datetime.now()
@@ -68,27 +81,22 @@ try:
     commit_count = random.choice(commit_weights)
     print(f"👨‍💻 Workday: making {commit_count} commits.")
 
-    # Ensure activity.log exists and directory is writable
-    try:
-        with open("activity.log", "a") as f:
-            f.write("")
-    except IOError as e:
-        print(f"Error accessing activity.log: {str(e)}")
-        sys.exit(1)
+    # Create activity.log if it doesn't exist
+    if not os.path.exists("activity.log"):
+        open("activity.log", "a").close()
+        print("Created new activity.log file")
 
     for i in range(commit_count):
-        filename = "activity.log"
-
-        print(f"Writing to {filename}")
-        with open(filename, "a") as f:
-            f.write(f"{now}: {get_commit_message()}\n")
-
-        print("Adding file to git")
-        run_command(["git", "add", filename])
-        
-        print("Creating commit")
+        commit_time = now + timedelta(minutes=i*random.randint(5, 30))
         commit_message = get_commit_message()
-        run_command(["git", "commit", "-m", commit_message])
+        
+        # Write to activity log
+        write_to_log(commit_message, commit_time)
+        print(f"Logged commit: {commit_message}")
+
+        # Git operations
+        run_command(["git", "add", "activity.log"])
+        run_command(["git", "commit", "-m", f"{commit_message} - {commit_time.strftime('%Y-%m-%d %H:%M:%S')}"])
 
         if i < commit_count - 1:
             # More realistic delays between commits (2-15 minutes)
