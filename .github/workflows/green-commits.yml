@@ -10,34 +10,40 @@ on:
 jobs:
   green-commits:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
 
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0
-        token: ${{ secrets.PAT_TOKEN }}
+        persist-credentials: false
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.x'
 
+    - name: Debug Info
+      run: |
+        echo "GitHub Actor: ${{ github.actor }}"
+        echo "Repository: ${{ github.repository }}"
+        git config --list
+
     - name: Make realistic random commits
       run: |
         python green_commit.py
 
-    - name: Configure Git
+    - name: Configure Git and Push
+      env:
+        PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
       run: |
         git config --global user.name "waliulrayhan"
         git config --global user.email "b190305034@cse.jnu.ac.bd"
-
-    - name: Push changes
-      run: |
-        git add .
-        git diff --staged --quiet || git commit -m "Automated commit: $(date)"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        git remote set-url origin https://waliulrayhan:${PAT_TOKEN}@github.com/waliulrayhan/greener.git
+        git add activity.log
+        git status
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Automated commit: $(date)"
+          git push
+        fi
