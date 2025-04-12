@@ -28,42 +28,45 @@ jobs:
       with:
         python-version: '3.x'
 
-    - name: Debug Info
+    - name: Configure Git
       run: |
-        echo "Repository: ${{ github.repository }}"
-        echo "Checking repository visibility..."
-        curl -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
-             -H "Accept: application/vnd.github.v3+json" \
-             https://api.github.com/repos/${{ github.repository }}
+        git config --global user.name "waliulrayhan"
+        git config --global user.email "b190305034@cse.jnu.ac.bd"
+        git config pull.rebase false
+
+    - name: Sync with remote
+      run: |
+        git pull origin main
 
     - name: Make realistic random commits
       run: |
         python green_commit.py
+        cat activity.log
 
-    - name: Configure Git and Push
+    - name: Commit and Push
       env:
         PERSONAL_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       run: |
-        git config --global user.name "waliulrayhan"
-        git config --global user.email "b190305034@cse.jnu.ac.bd"
-        
         # Configure Git with token
         git remote set-url origin "https://${{ github.actor }}:${PERSONAL_TOKEN}@github.com/${{ github.repository }}.git"
         
-        # Ensure we're on the main branch
-        git checkout main
+        # Add and commit changes
+        git add activity.log
         
-        # Pull latest changes
-        git pull origin main --rebase
-        
-        # Check if activity.log has changes
-        if git diff --quiet activity.log; then
+        if git diff --cached --quiet; then
           echo "No changes to commit"
           exit 0
         else
-          # Get the last line from activity.log for commit message
-          LAST_LOG=$(tail -n 1 activity.log)
-          git add activity.log
-          git commit -m "$LAST_LOG"
-          git push origin HEAD:main
+          # Get the commit message from the last line of activity.log
+          COMMIT_MSG=$(tail -n 1 activity.log)
+          echo "Committing with message: $COMMIT_MSG"
+          
+          # Commit and push
+          git commit -m "$COMMIT_MSG"
+          
+          # Try to push, if fails, pull and push again
+          git push origin main || {
+            git pull origin main
+            git push origin main
+          }
         fi
