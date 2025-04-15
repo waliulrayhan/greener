@@ -10,6 +10,10 @@ on:
     - cron: '42 16,17,18,19,20 * * 0,6'
   workflow_dispatch:
 
+# Add permissions block
+permissions:
+  contents: write
+
 jobs:
   green-commits:
     runs-on: ubuntu-latest
@@ -28,6 +32,11 @@ jobs:
       with:
         python-version: '3.x'
 
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytz
+
     - name: Configure Git
       run: |
         git config --global user.name "waliulrayhan"
@@ -45,10 +54,10 @@ jobs:
 
     - name: Commit and Push
       env:
-        PERSONAL_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       run: |
         # Configure Git with token
-        git remote set-url origin "https://${{ github.actor }}:${PERSONAL_TOKEN}@github.com/${{ github.repository }}.git"
+        git remote set-url origin "https://${{ github.actor }}:${TOKEN}@github.com/${{ github.repository }}.git"
         
         # Add and commit changes
         git add activity.log
